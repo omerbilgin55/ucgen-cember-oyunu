@@ -185,6 +185,7 @@
   .sp-row .sp1 input{ border-color:var(--blue); color:var(--blue); }
   .sp-row .sp2 input{ border-color:var(--red); color:var(--red); }
   .sp-row input:focus{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.15); }
+  .sp-row input:disabled{ background:#f8fafc; opacity:1; }   /* bilgisayarın hesapladığı kutu */
   .sp-check{ margin-top:14px; border:none; background:var(--ink); color:#fff; padding:12px 22px; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; }
   .sp-feedback{ margin-top:12px; font-size:14.5px; font-weight:700; line-height:1.5; }
   .sp-feedback.warn{ color:var(--red-d); }
@@ -568,27 +569,31 @@ function finish(){
   const empty=nodes.find(n=>!state.marks[n.id]);
   const {s1,s2}=cellSums(empty.id);
   state.result={emptyId:empty.id, s1, s2, nbIds:NEI[empty.id]};
-  // skor giriş kutularını sıfırla (oyuncular kendi hesaplayacak)
+
+  // giriş kutularını hazırla
   const in1=document.getElementById('spIn1'), in2=document.getElementById('spIn2');
-  if(in1) in1.value=''; if(in2) in2.value='';
   const fb=document.getElementById('spFeedback'); if(fb){ fb.textContent=''; fb.className='sp-feedback'; }
+  if(in1&&in2){
+    in1.value=''; in2.value=''; in1.disabled=false; in2.disabled=false;
+    if(state.computerPlayer){         // bilgisayar KENDİ puanını hesaplar → kutusunu doldur & kilitle
+      const cp=state.computerPlayer;
+      const cpInput = cp===1?in1:in2;
+      cpInput.value = (cp===1?s1:s2);
+      cpInput.disabled = true;
+    }
+  }
   Sfx.select();
-  render();   // boş çemberin komşularını renkle doldurur, paneli gösterir
+  render();   // komşuları renkle doldurur, paneli gösterir
+}
+
+function wrongTip(){
+  const tips=['parmaklar karışmış galiba! 🤭','sayılar elinden kaçmış! 😅','bu sefer yavaştan, tekrar dene 🐢','toplama makinesi ısınıyor! 🔥'];
+  return tips[Object.keys(state.marks).length % tips.length];
 }
 
 /* Oyuncular skoru kendi hesaplar; kontrol et */
-function whoFor(p){
-  if(state.computerPlayer){ return state.names[state.computerPlayer===1?2:1]; } // pvc: tek insan
-  return state.names[p];
-}
-function buildWrongMsg(ok1, ok2){
-  const tips = ['parmaklar karışmış galiba! 🤭','sayılar elinden kaçmış! 😅','bu sefer yavaştan, tekrar dene 🐢','toplama makinesi ısınıyor! 🔥'];
-  const tip = tips[Object.keys(state.marks).length % tips.length];
-  if(state.computerPlayer){ // pvc: tek oyuncu
-    const human = state.names[state.computerPlayer===1?2:1];
-    const renk = (!ok1&&!ok2) ? 'iki renkte de' : (!ok1 ? 'mavi' : 'kırmızı');
-    return `😅 ${human}, ${renk} toplam tutmadı — ${tip}<br>Sarı çemberin komşularını tek tek say ve tekrar dene.`;
-  }
+function buildWrongMsg(ok1, ok2){    // iki kişilik için
+  const tip = wrongTip();
   const lines=[];
   if(!ok1) lines.push(`🔵 ${state.names[1]}, mavi toplamın tutmadı — ${tip}`);
   if(!ok2) lines.push(`🔴 ${state.names[2]}, kırmızı toplamın tutmadı — ${tip}`);
@@ -597,20 +602,27 @@ function buildWrongMsg(ok1, ok2){
 function checkScore(){
   const res=state.result; if(!res) return;
   const fb=document.getElementById('spFeedback');
+
+  if(state.computerPlayer){          // bilgisayara karşı → yalnız İNSANIN kutusu kontrol edilir
+    const humanP = state.computerPlayer===1?2:1;
+    const inp = document.getElementById(humanP===1?'spIn1':'spIn2');
+    const g = inp.value.trim();
+    if(g===''){ fb.className='sp-feedback warn'; fb.textContent='Önce kendi toplamını yaz ✏️'; Sfx.error(); return; }
+    const actual = humanP===1?res.s1:res.s2;
+    if(parseInt(g,10)===actual){ state.revealed=true; render(); showResult(res.s1,res.s2); return; }
+    Sfx.error(); fb.className='sp-feedback warn';
+    const renk = humanP===1?'mavi':'kırmızı';
+    fb.innerHTML = `😅 ${state.names[humanP]}, ${renk} toplamın tutmadı — ${wrongTip()}<br>Sarı çemberin ${renk} komşularını tek tek say ve tekrar dene.`;
+    return;
+  }
+
+  // iki kişilik → iki kutu da kontrol edilir
   const g1=document.getElementById('spIn1').value.trim();
   const g2=document.getElementById('spIn2').value.trim();
   if(g1===''||g2===''){ fb.className='sp-feedback warn'; fb.textContent='Önce iki kutuya da toplamını yaz ✏️'; Sfx.error(); return; }
-  const v1=parseInt(g1,10), v2=parseInt(g2,10);
-  const ok1=(v1===res.s1), ok2=(v2===res.s2);
-  if(ok1 && ok2){
-    state.revealed=true;
-    render();                 // skor kartları gerçek değeri gösterir, panel gizlenir
-    showResult(res.s1,res.s2);// kazananı ilan et
-    return;
-  }
-  Sfx.error();
-  fb.className='sp-feedback warn';
-  fb.innerHTML = buildWrongMsg(ok1, ok2);
+  const ok1=(parseInt(g1,10)===res.s1), ok2=(parseInt(g2,10)===res.s2);
+  if(ok1&&ok2){ state.revealed=true; render(); showResult(res.s1,res.s2); return; }
+  Sfx.error(); fb.className='sp-feedback warn'; fb.innerHTML=buildWrongMsg(ok1,ok2);
 }
 
 /* ================= YAPAY ZEKA (flat Monte Carlo) ================= */
@@ -758,6 +770,10 @@ function render(){
     if(state.over && !state.revealed){
       document.getElementById('spName1').textContent = state.names[1];
       document.getElementById('spName2').textContent = state.names[2];
+      const sub = sp.querySelector('.sp-sub');
+      if(sub) sub.innerHTML = state.computerPlayer
+        ? 'Kendi renginin toplamını yaz — 🤖 bilgisayar kendi puanını hesapladı.'
+        : 'Sarı çemberin çevresindeki <b>renkli</b> sayıları topla ve yaz.';
     }
   }
 
