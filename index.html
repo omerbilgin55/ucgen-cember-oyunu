@@ -2,8 +2,17 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Üçgen Çember Oyunu</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<link rel="icon" href="favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Üçgen Oyun">
 <style>
   :root{
     --blue:#2563eb; --blue-d:#1e40af;
@@ -22,7 +31,7 @@
       radial-gradient(1000px 600px at 100% 0%, #ffe4e6 0%, transparent 50%),
       linear-gradient(180deg,#f8fafc,#eef2f9);
     display:flex; flex-direction:column; align-items:center;
-    padding:20px 14px 40px;
+    padding:max(20px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(40px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
   }
   .screen{ width:100%; max-width:640px; animation:fadeUp .4s ease both; }
   [hidden]{ display:none !important; }
@@ -616,6 +625,11 @@ document.getElementById('segDiff').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b)return;
   [...e.currentTarget.children].forEach(x=>x.classList.remove('on')); b.classList.add('on'); cfg.diff=b.dataset.v;
 });
+
+/* ================= PWA: SERVICE WORKER ================= */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
 </script>
 </body>
 </html>
