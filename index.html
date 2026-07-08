@@ -45,6 +45,33 @@
   }
   .brand h1{ font-size:30px; margin:0; letter-spacing:-.5px; }
   .brand p{ color:var(--muted); margin:8px 0 0; font-size:15px; }
+  .how-btn{
+    display:inline-flex; align-items:center; gap:7px; margin:14px auto 0;
+    border:1.5px solid var(--blue); background:#fff; color:var(--blue-d);
+    padding:9px 16px; border-radius:999px; font-weight:800; font-size:14px; cursor:pointer;
+    transition:all .15s;
+  }
+  .how-btn:hover{ background:var(--blue); color:#fff; }
+
+  /* Nasıl Oynanır modalı */
+  .how-modal{ position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center;
+    background:rgba(15,23,42,.5); backdrop-filter:blur(3px); padding:18px; }
+  .how-card{ background:#fff; border-radius:20px; padding:22px 22px 18px; max-width:460px; width:100%;
+    max-height:88vh; overflow:auto; box-shadow:0 20px 50px -12px rgba(0,0,0,.4); animation:fadeUp .3s ease both; }
+  .how-card h2{ font-size:21px; margin:0 0 4px; }
+  .how-card .lead{ color:var(--muted); font-size:14px; margin:0 0 14px; }
+  .how-steps{ list-style:none; padding:0; margin:0; counter-reset:hs; }
+  .how-steps li{ position:relative; padding:8px 0 8px 40px; font-size:14.5px; line-height:1.45; border-bottom:1px solid #f1f5f9; }
+  .how-steps li:last-child{ border-bottom:none; }
+  .how-steps li::before{ counter-increment:hs; content:counter(hs); position:absolute; left:0; top:7px;
+    width:26px; height:26px; border-radius:50%; background:var(--blue); color:#fff;
+    font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center; }
+  .how-tip{ background:#fffbeb; border:1px solid #fde68a; color:#92400e; border-radius:12px; padding:10px 12px; font-size:13.5px; margin-top:14px; }
+  .how-fig{ display:flex; align-items:center; gap:12px; background:#f8fafc; border-radius:14px; padding:12px; margin-bottom:14px; }
+  .how-fig svg{ width:96px; height:auto; flex:0 0 auto; }
+  .how-fig .cap{ font-size:13px; color:#334155; line-height:1.4; }
+  .how-close{ width:100%; margin-top:16px; border:none; background:var(--ink); color:#fff;
+    padding:12px; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; }
 
   .menu-card{
     background:rgba(255,255,255,.85); backdrop-filter:blur(8px);
@@ -143,6 +170,25 @@
   .controls button.primary{ background:var(--ink); color:#fff; border-color:var(--ink); }
   .controls button.gold.on{ background:var(--gold); color:#fff; border-color:var(--gold); }
 
+  /* İsim girişi */
+  .name-input{ width:100%; border:1.5px solid var(--line); border-radius:12px; padding:11px 13px; font-size:15px; font-weight:600; color:var(--ink); }
+  .name-input:focus{ outline:none; border-color:var(--blue); }
+
+  /* Skoru kendin hesapla paneli */
+  #scorePanel{ margin-top:14px; background:#fff; border:2px solid var(--gold); border-radius:16px; padding:16px; text-align:center; box-shadow:0 8px 24px -14px rgba(0,0,0,.35); animation:fadeUp .3s ease both; }
+  .sp-title{ font-size:19px; font-weight:800; }
+  .sp-sub{ color:var(--muted); font-size:13.5px; margin:4px 0 12px; }
+  .sp-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .sp-row label{ display:flex; align-items:center; gap:8px; font-weight:800; font-size:15px; }
+  .sp-row .sp1{ color:var(--blue-d); } .sp-row .sp2{ color:var(--red-d); }
+  .sp-row input{ width:74px; border:2px solid var(--line); border-radius:10px; padding:9px; font-size:19px; font-weight:800; text-align:center; }
+  .sp-row .sp1 input{ border-color:var(--blue); color:var(--blue); }
+  .sp-row .sp2 input{ border-color:var(--red); color:var(--red); }
+  .sp-row input:focus{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.15); }
+  .sp-check{ margin-top:14px; border:none; background:var(--ink); color:#fff; padding:12px 22px; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; }
+  .sp-feedback{ margin-top:12px; font-size:14.5px; font-weight:700; line-height:1.5; }
+  .sp-feedback.warn{ color:var(--red-d); }
+
   /* SVG element styles */
   circle.node{ cursor:pointer; transition:fill .12s; }
   circle.node.playable:hover{ fill:#eff6ff; }
@@ -215,6 +261,7 @@
     </svg>
     <h1>Üçgen Çember Oyunu</h1>
     <p>21 çember · 1–10 sayıları · son boş çemberin komşuları kazananı belirler</p>
+    <button type="button" class="how-btn" data-action="how">📖 Nasıl Oynanır?</button>
   </div>
 
   <!-- Bilgisayara karşı -->
@@ -241,6 +288,10 @@
         <button data-v="zor">Zor</button>
       </div>
     </div>
+    <div class="opt-row">
+      <div class="opt-label">Adın</div>
+      <input type="text" class="name-input" id="nameSolo" maxlength="14" placeholder="Adını yaz (isteğe bağlı)">
+    </div>
     <button type="button" class="play-btn" data-action="start" data-mode="pvc">Oyna →</button>
   </div>
 
@@ -252,6 +303,11 @@
         <div class="title">İki Kişilik</div>
         <div class="desc">Aynı cihazda sırayla iki oyuncu. Mavi ve kırmızı karşı karşıya.</div>
       </div>
+    </div>
+    <div class="opt-row">
+      <div class="opt-label">Oyuncular</div>
+      <input type="text" class="name-input" id="nameP1" maxlength="14" placeholder="🔵 1. oyuncu adı">
+      <input type="text" class="name-input" id="nameP2" maxlength="14" placeholder="🔴 2. oyuncu adı" style="margin-top:8px">
     </div>
     <button type="button" class="play-btn" data-action="start" data-mode="pvp">Oyna →</button>
   </div>
@@ -266,6 +322,42 @@
       </div>
     </div>
     <button type="button" class="play-btn" data-action="start" data-mode="learn">Başla →</button>
+  </div>
+</div>
+
+<!-- ============ NASIL OYNANIR MODALI ============ -->
+<div class="how-modal" id="howModal" hidden>
+  <div class="how-card">
+    <h2>📖 Nasıl Oynanır?</h2>
+    <p class="lead">21 çemberli üçgende, boş kalan çemberin komşularını toplayıp kazananı bulun.</p>
+
+    <div class="how-fig">
+      <svg viewBox="0 0 300 300" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle">
+        <circle cx="150" cy="30" r="21" fill="#fff7ed" stroke="#f59e0b" stroke-width="4" stroke-dasharray="6 4"/>
+        <circle cx="126" cy="78" r="21" fill="#fff" stroke="#2563eb" stroke-width="3"/><text x="126" y="85" fill="#2563eb">5</text>
+        <circle cx="174" cy="78" r="21" fill="#fff" stroke="#e11d48" stroke-width="3"/><text x="174" y="85" fill="#e11d48">8</text>
+        <circle cx="102" cy="126" r="21" fill="#fff" stroke="#e11d48" stroke-width="3"/><text x="102" y="133" fill="#e11d48">2</text>
+        <circle cx="150" cy="126" r="21" fill="#fff" stroke="#2563eb" stroke-width="3"/><text x="150" y="133" fill="#2563eb">7</text>
+        <circle cx="198" cy="126" r="21" fill="#fff" stroke="#94a3b8" stroke-width="2.5"/>
+        <circle cx="78"  cy="174" r="21" fill="#fff" stroke="#94a3b8" stroke-width="2.5"/>
+        <circle cx="126" cy="174" r="21" fill="#fff" stroke="#94a3b8" stroke-width="2.5"/>
+        <circle cx="174" cy="174" r="21" fill="#fff" stroke="#94a3b8" stroke-width="2.5"/>
+        <circle cx="222" cy="174" r="21" fill="#fff" stroke="#94a3b8" stroke-width="2.5"/>
+      </svg>
+      <div class="cap">🟡 <b>Boş çember</b> yukarıda. Komşuları: 🔵 5 ve 🔴 8 → <b>🔴 kazanır</b> (8 &gt; 5).</div>
+    </div>
+
+    <ol class="how-steps">
+      <li>Oyun <b>2 kişiyle</b> oynanır: 🔵 Mavi ve 🔴 Kırmızı. Her oyuncunun <b>1–10</b> sayıları vardır (her sayı 1 kez).</li>
+      <li>Sırayla oynarsınız. <b>Önce boş bir çembere</b> dokun, <b>sonra bir sayı seç</b> — sayı o çembere yazılır.</li>
+      <li>Böylece 20 çember dolar, geriye <b>1 boş çember</b> kalır.</li>
+      <li>Boş çemberin <b>komşularındaki</b> sayılar renklerine göre <b>toplanır.</b></li>
+      <li><b>Toplamı büyük</b> olan renk kazanır. Eşitse <b>berabere.</b></li>
+    </ol>
+
+    <div class="how-tip">💡 İpucu: Büyük sayılarını, sonda boş kalabilecek bir çemberin <b>yanına</b> koymaya çalış; komşu toplamın büyür!</div>
+
+    <button type="button" class="how-close" data-action="closeHow">Anladım 👍</button>
   </div>
 </div>
 
@@ -294,6 +386,17 @@
 
   <div class="board-wrap" id="boardWrap">
     <svg id="board"></svg>
+  </div>
+
+  <div id="scorePanel" hidden>
+    <div class="sp-title">🧮 Haydi skoru hesapla!</div>
+    <div class="sp-sub">Sarı çemberin çevresindeki <b>renkli</b> sayıları topla ve yaz.</div>
+    <div class="sp-row">
+      <label class="sp1">🔵 <span id="spName1">Mavi</span> <input id="spIn1" type="number" inputmode="numeric" min="0" placeholder="?"></label>
+      <label class="sp2">🔴 <span id="spName2">Kırmızı</span> <input id="spIn2" type="number" inputmode="numeric" min="0" placeholder="?"></label>
+    </div>
+    <button type="button" class="sp-check" data-action="checkScore">Kontrol Et ✓</button>
+    <div id="spFeedback" class="sp-feedback"></div>
   </div>
 
   <div class="hint" id="hint"></div>
@@ -375,25 +478,40 @@ const DIFF = { kolay:{budget:500,eps:.4}, orta:{budget:5000,eps:.06}, zor:{budge
 let cfg = { first:'human', diff:'orta' };
 let state, history, aiTimer=null;
 
+function playerNames(mode, computerPlayer){
+  const clean = s => (s||'').trim().slice(0,14);
+  if(mode==='pvp'){
+    return {1: clean(document.getElementById('nameP1').value) || 'Mavi',
+            2: clean(document.getElementById('nameP2').value) || 'Kırmızı'};
+  }
+  if(mode==='pvc'){
+    const solo = clean(document.getElementById('nameSolo').value) || 'Sen';
+    return computerPlayer===1 ? {1:'Bilgisayar', 2:solo} : {1:solo, 2:'Bilgisayar'};
+  }
+  return {1:'Mavi', 2:'Kırmızı'};   // öğrenme modu
+}
+
 function startGame(mode){
   const computerPlayer = mode==='pvc' ? (cfg.first==='human'?2:1) : null;
   state = {
     mode, computerPlayer, diff: cfg.diff,
+    names: playerNames(mode, computerPlayer),
     turn:1,
     remaining:{1:[1,2,3,4,5,6,7,8,9,10], 2:[1,2,3,4,5,6,7,8,9,10]},
-    selectedCell:null, marks:{}, over:false, result:null, lastPlaced:null,
+    selectedCell:null, marks:{}, over:false, revealed:false, result:null, lastPlaced:null,
     showSuggest: mode==='learn', suggestion:null,
   };
   history=[];
   document.getElementById('menu').hidden = true;
   document.getElementById('game').hidden = false;
+  document.getElementById('scorePanel').hidden = true;
   document.getElementById('modeName').textContent =
     mode==='pvc' ? '🤖 Bilgisayara Karşı' : mode==='pvp' ? '👥 İki Kişilik' : '🎓 Öğrenme Modu';
   document.getElementById('suggestBtn').hidden = (mode!=='learn');
   document.getElementById('suggestBtn').classList.toggle('on', state.showSuggest);
   updateSoundBtn();
-  document.getElementById('lbl2').textContent = (computerPlayer===2)?'Bilgisayar':'Kırmızı';
-  document.getElementById('lbl1').textContent = (computerPlayer===1)?'Bilgisayar':'Mavi';
+  document.getElementById('lbl1').textContent = state.names[1];
+  document.getElementById('lbl2').textContent = state.names[2];
   render();
 }
 function newGame(){ clearTimeout(aiTimer); startGame(state.mode); }
@@ -446,11 +564,53 @@ function undo(){
   render();
 }
 function finish(){
-  state.over=true;
+  state.over=true; state.revealed=false;
   const empty=nodes.find(n=>!state.marks[n.id]);
   const {s1,s2}=cellSums(empty.id);
   state.result={emptyId:empty.id, s1, s2, nbIds:NEI[empty.id]};
-  showResult(s1,s2);
+  // skor giriş kutularını sıfırla (oyuncular kendi hesaplayacak)
+  const in1=document.getElementById('spIn1'), in2=document.getElementById('spIn2');
+  if(in1) in1.value=''; if(in2) in2.value='';
+  const fb=document.getElementById('spFeedback'); if(fb){ fb.textContent=''; fb.className='sp-feedback'; }
+  Sfx.select();
+  render();   // boş çemberin komşularını renkle doldurur, paneli gösterir
+}
+
+/* Oyuncular skoru kendi hesaplar; kontrol et */
+function whoFor(p){
+  if(state.computerPlayer){ return state.names[state.computerPlayer===1?2:1]; } // pvc: tek insan
+  return state.names[p];
+}
+function buildWrongMsg(ok1, ok2){
+  const tips = ['parmaklar karışmış galiba! 🤭','sayılar elinden kaçmış! 😅','bu sefer yavaştan, tekrar dene 🐢','toplama makinesi ısınıyor! 🔥'];
+  const tip = tips[Object.keys(state.marks).length % tips.length];
+  if(state.computerPlayer){ // pvc: tek oyuncu
+    const human = state.names[state.computerPlayer===1?2:1];
+    const renk = (!ok1&&!ok2) ? 'iki renkte de' : (!ok1 ? 'mavi' : 'kırmızı');
+    return `😅 ${human}, ${renk} toplam tutmadı — ${tip}<br>Sarı çemberin komşularını tek tek say ve tekrar dene.`;
+  }
+  const lines=[];
+  if(!ok1) lines.push(`🔵 ${state.names[1]}, mavi toplamın tutmadı — ${tip}`);
+  if(!ok2) lines.push(`🔴 ${state.names[2]}, kırmızı toplamın tutmadı — ${tip}`);
+  return lines.join('<br>') + '<br>Sarı çemberin o renkteki komşularını tek tek topla.';
+}
+function checkScore(){
+  const res=state.result; if(!res) return;
+  const fb=document.getElementById('spFeedback');
+  const g1=document.getElementById('spIn1').value.trim();
+  const g2=document.getElementById('spIn2').value.trim();
+  if(g1===''||g2===''){ fb.className='sp-feedback warn'; fb.textContent='Önce iki kutuya da toplamını yaz ✏️'; Sfx.error(); return; }
+  const v1=parseInt(g1,10), v2=parseInt(g2,10);
+  const ok1=(v1===res.s1), ok2=(v2===res.s2);
+  if(ok1 && ok2){
+    state.revealed=true;
+    render();                 // skor kartları gerçek değeri gösterir, panel gizlenir
+    showResult(res.s1,res.s2);// kazananı ilan et
+    return;
+  }
+  Sfx.error();
+  fb.className='sp-feedback warn';
+  fb.innerHTML = buildWrongMsg(ok1, ok2);
 }
 
 /* ================= YAPAY ZEKA (flat Monte Carlo) ================= */
@@ -541,7 +701,10 @@ function render(){
     let fill='#ffffff', stroke='#cbd5e1', sw=2.5, dash='0';
     if(state.over && res){
       if(n.id===res.emptyId){ fill='#fef3c7'; stroke='#f59e0b'; sw=3.5; }
-      else if(res.nbIds.includes(n.id)){ stroke = mark && mark.player===1?'#2563eb':'#e11d48'; sw=3.5; }
+      else if(res.nbIds.includes(n.id) && mark){   // komşuları renkle DOLDUR
+        fill = mark.player===1 ? '#2563eb' : '#e11d48';
+        stroke = mark.player===1 ? '#1e40af' : '#9f1239'; sw=3;
+      }
     } else if(isSel){                              // seçili çember (sayı bekliyor)
       stroke = state.turn===1?'#2563eb':'#e11d48'; fill = state.turn===1?'#eff6ff':'#fff1f2'; sw=4;
     } else if(sug && n.id===sug.cell){ stroke='#f59e0b'; sw=3.5; dash='5 4'; }
@@ -553,7 +716,10 @@ function render(){
     svg.appendChild(c);
 
     if(mark){
-      const t=el('text',{x:n.x,y:n.y+7,'text-anchor':'middle',class:'num',fill:mark.player===1?'#2563eb':'#e11d48'});
+      // oyun sonunda boş çemberin komşularının sayısı BEYAZ (dolgu üstünde)
+      const isWinNb = state.over && res && res.nbIds.includes(n.id);
+      const tfill = isWinNb ? '#ffffff' : (mark.player===1?'#2563eb':'#e11d48');
+      const t=el('text',{x:n.x,y:n.y+7,'text-anchor':'middle',class:'num',fill:tfill});
       if(n.id===state.lastPlaced) t.classList.add('pop');
       t.textContent=mark.value; svg.appendChild(t);
     } else if(state.mode==='learn' && !state.over){
@@ -578,9 +744,21 @@ function render(){
   const hint=document.getElementById('hint');
   if(!isCpuTurn()){
     hint.className='hint';
-    if(state.over) hint.innerHTML = `Boş çemberin komşuları — 🔵 <b>${res.s1}</b> · 🔴 <b>${res.s2}</b>`;
+    if(state.over) hint.innerHTML = state.revealed
+        ? `Boş çemberin komşuları — 🔵 <b>${res.s1}</b> · 🔴 <b>${res.s2}</b>`
+        : '';                                                   // cevap panelde hesaplanıyor
     else if(state.selectedCell!=null) hint.innerHTML='Şimdi bir <b>sayı</b> seç — seçili çembere yerleşecek.';
     else hint.innerHTML='Önce boş bir <b>çembere</b> tıkla, sonra bir <b>sayı</b> seç.';
+  }
+
+  // Skor hesaplama paneli: oyun bitti ama henüz açıklanmadıysa göster
+  const sp=document.getElementById('scorePanel');
+  if(sp){
+    sp.hidden = !(state.over && !state.revealed);
+    if(state.over && !state.revealed){
+      document.getElementById('spName1').textContent = state.names[1];
+      document.getElementById('spName2').textContent = state.names[2];
+    }
   }
 
   // analiz satırı
@@ -596,7 +774,10 @@ function render(){
 /* Skor kartları: oyun bitmeden "şu an lider olan boş çember" senaryosunu göster */
 function updateScoreboard(bestBlue,bestRed){
   let s1='0', s2='0';
-  if(state.over && state.result){ s1=state.result.s1; s2=state.result.s2; }
+  if(state.over && state.result){
+    if(state.revealed){ s1=state.result.s1; s2=state.result.s2; }
+    else { s1='?'; s2='?'; }                 // oyuncular kendi hesaplasın diye gizli
+  }
   else {
     // bilgilendirici: tüm boş çemberler arasında en yüksek mavi ve en yüksek kırmızı komşu toplamı
     let m1=0,m2=0;
@@ -611,8 +792,8 @@ function updateScoreboard(bestBlue,bestRed){
 function showResult(s1,s2){
   const wrap=document.getElementById('boardWrap');
   const old=wrap.querySelector('.overlay'); if(old) old.remove();
-  const p1name = state.computerPlayer===1?'Bilgisayar':'Mavi';
-  const p2name = state.computerPlayer===2?'Bilgisayar':'Kırmızı';
+  const p1name = state.names[1];
+  const p2name = state.names[2];
   let title,emoji;
   if(s1>s2){ title=`${p1name} kazandı!`; emoji='🔵🏆'; }
   else if(s2>s1){ title=`${p2name} kazandı!`; emoji='🔴🏆'; }
@@ -656,11 +837,14 @@ document.addEventListener('click', e=>{
   if(t.dataset.action==='sound'){ Sfx.toggle(); updateSoundBtn(); return; }
   Sfx.ui();
   switch(t.dataset.action){
+    case 'how':     document.getElementById('howModal').hidden = false; break;
+    case 'closeHow':document.getElementById('howModal').hidden = true; break;
     case 'start':   startGame(t.dataset.mode); break;
     case 'menu':    goMenu(); break;
     case 'undo':    undo(); break;
     case 'new':     newGame(); break;
     case 'suggest': toggleSuggest(); break;
+    case 'checkScore': checkScore(); break;
   }
 });
 
