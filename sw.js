@@ -1,5 +1,5 @@
 /* Üçgen Çember Oyunu — Service Worker (offline destek) */
-const CACHE = 'ucgen-oyun-v1';
+const CACHE = 'ucgen-oyun-v2';
 const ASSETS = [
   './',
   './index.html',
